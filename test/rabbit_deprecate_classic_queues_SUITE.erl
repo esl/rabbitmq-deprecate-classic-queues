@@ -85,7 +85,12 @@ deprecate_classic_queues_test(Config) ->
     ?assertNot(erlang:is_process_alive(Chan1)),
     rabbit_ct_client_helpers:close_channel(Chan1),
     rabbit_ct_client_helpers:close_connection(Conn1),
-    timer:sleep(1000),
+
+    rabbit_ct_helpers:await_condition(
+        fun () ->
+            erlang:is_process_alive(Conn1) =:= false
+        end),
+
     Conn2 = rabbit_ct_client_helpers:open_connection(Config, 0),
     {ok, Chan2} = amqp_connection:open_channel(Conn2),
     Result2 = declare_queue(Chan2, make_quorum_queue(QQ)),
