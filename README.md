@@ -1,6 +1,6 @@
 # RabbitMQ Deprecate Classic Queues
 
-With the emergence of Quorum Queues in RabbitMQ 3.8.x, operators are now seeking means of being able disable the use of Classic Queues within their RabbitMQ environments with minimal service impact. This plugin allows operators to disable the use of Classic Queues on RabbitMQ installations.
+With the emergence of [Quorum Queues](https://www.rabbitmq.com/quorum-queues.html) in RabbitMQ 3.8.x, operators are now seeking means of being able disable the use of Classic Queues within their RabbitMQ environments with minimal service impact. This plugin allows operators to disable the use of Classic Queues on RabbitMQ installations.
 
 **NOTE:** For use on clustered environments, this plugin must be activated/enabled on ALL cluster nodes. 
 
