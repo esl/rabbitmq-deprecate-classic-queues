@@ -98,20 +98,41 @@ deprecate_classic_queues_test(Config) ->
     ?assert(erlang:is_process_alive(Chan2)),
     rabbit_ct_client_helpers:close_channel(Chan2),
 
-    rabbit_ct_broker_helpers:disable_plugin(Config, 0, rabbitmq_deprecate_classic_queues),
-
     Conn3 = rabbit_ct_client_helpers:open_connection(Config, 0),
     {ok, Chan3} = amqp_connection:open_channel(Conn3),
-    Result3 = declare_queue(Chan3, make_classic_queue(CQ)),
+    ClassicQ1 = make_classic_default_queue(CQ),
+    Result3 =
+      try
+          declare_queue(Chan3, ClassicQ1)
+      catch _:Reason1 ->
+          ct:pal("failed to declare queue: ~p", [Reason1]),
+          error
+      end,
 
-    ?assertMatch(#'queue.declare_ok'{queue = CQ}, Result3),
-    ?assert(erlang:is_process_alive(Chan3)),
-
-    delete_queue(Chan3, QQ),
-    delete_queue(Chan3, CQ),
-
-    [rabbit_ct_client_helpers:close_connection(C) || C <- [Conn1, Conn2, Conn3]],
+    ?assertMatch(error, Result3),
+    ?assertNot(erlang:is_process_alive(Chan3)),
     rabbit_ct_client_helpers:close_channel(Chan3),
+    rabbit_ct_client_helpers:close_connection(Conn3),
+
+    rabbit_ct_helpers:await_condition(
+        fun () ->
+            erlang:is_process_alive(Conn3) =:= false
+        end),
+
+    rabbit_ct_broker_helpers:disable_plugin(Config, 0, rabbitmq_deprecate_classic_queues),
+
+    Conn4 = rabbit_ct_client_helpers:open_connection(Config, 0),
+    {ok, Chan4} = amqp_connection:open_channel(Conn4),
+    Result4 = declare_queue(Chan4, make_classic_queue(CQ)),
+
+    ?assertMatch(#'queue.declare_ok'{queue = CQ}, Result4),
+    ?assert(erlang:is_process_alive(Chan4)),
+
+    delete_queue(Chan4, QQ),
+    delete_queue(Chan4, CQ),
+
+    [rabbit_ct_client_helpers:close_connection(C) || C <- [Conn1, Conn2, Conn3, Conn4]],
+    rabbit_ct_client_helpers:close_channel(Chan4),
 
     passed.
 
@@ -127,6 +148,9 @@ delete_queue(Chan, Q) ->
 
 make_classic_queue(Q) ->
     make_queue(Q, [{?QUEUE_TYPE_HEADER, longstr, <<"classic">>}]).
+
+make_classic_default_queue(Q) ->
+    make_queue(Q, []).
 
 make_quorum_queue(Q) ->
     make_queue(Q, [{?QUEUE_TYPE_HEADER, longstr, <<"quorum">>}], true).

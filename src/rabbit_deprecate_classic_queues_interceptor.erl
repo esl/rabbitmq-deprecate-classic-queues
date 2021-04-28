@@ -42,6 +42,10 @@ intercept(#'queue.declare'{arguments = Args} = Method, Content, _IState) ->
             rabbit_misc:amqp_error(
                 'precondition_failed', "classic queues are not allowed", [],
                 'queue.declare');
+        undefined ->
+            rabbit_misc:amqp_error(
+                'precondition_failed', "classic queues are not allowed", [],
+                'queue.declare');
         _ ->
             {Method, Content}
     end;
