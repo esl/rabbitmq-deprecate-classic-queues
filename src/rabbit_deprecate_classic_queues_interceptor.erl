@@ -34,7 +34,7 @@ init(_Ch) ->
 
 description() ->
     [{description,
-      <<"Depreccates classic queues in RabbitMQ on queue declaration">>}].
+      <<"Deprecates classic queues in RabbitMQ on queue declaration">>}].
 
 intercept(#'queue.declare'{arguments = Args} = Method, Content, _IState) ->
     case rabbit_misc:table_lookup(Args, ?QUEUE_TYPE_HEADER) of
