@@ -2,7 +2,11 @@
 
 With the emergence of [Quorum Queues](https://www.rabbitmq.com/quorum-queues.html) in RabbitMQ 3.8.x, operators are now seeking means of being able disable the use of Classic Queues within their RabbitMQ environments with minimal service impact. This plugin allows operators to disable the use of Classic Queues on RabbitMQ installations.
 
-**NOTE:** For use on clustered environments, this plugin must be activated/enabled on ALL cluster nodes. 
+**NOTE:**
+
+- For use on clustered environments, this plugin must be activated/enabled on ALL cluster nodes.
+- Only Classic Queues creation through AMQP (by a client application over TCP/IP) will be disabled.
+- RabbitMQ Management UI overrides this plugin, hence Classic Queues can still be created from the UI (e.g. for test purposes by the administrator)
 
 
 ## Usage
@@ -31,6 +35,11 @@ To execute automated tests, close the plugin and run the following command:
 ```
 make tests
 ```
+
+## Future work
+
+- Support for native disabling of classic queues (or mirroring only) in RabbitMQ core. e.g. https://github.com/rabbitmq/rabbitmq-server/pull/2810
+- Support to disable classic queues from the RabbitMQ Management UI/plugin
 
 
 ## LICENSE
